@@ -1,0 +1,44 @@
+name: "Bug report / 不具合報告"
+description: "Report a reproducible problem / 再現する問題を報告する"
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Japanese and English are welcome. Minus700K is under development.
+        日本語・英語で記入できます。Minus700Kは開発中です。
+        Do not attach credentials, config.json, recordings, private screenshots, or full diagnostic folders.
+        認証情報・設定ファイル・録音・個人情報を含む画像・診断フォルダー全体は添付しないでください。
+  - type: input
+    id: version
+    attributes:
+      label: "Version or commit / バージョンまたはコミット"
+      placeholder: "Version, commit SHA, or unknown / 不明の場合は「不明」"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: "Windows version / Windowsのバージョン"
+      description: "Include the relevant app, microphone, or speaker if needed; no account details. / 必要なら対象アプリや音声機器も記入。アカウント情報は不要です。"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to reproduce / 再現手順"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Expected behavior / 期待した動作"
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: "Actual behavior / 実際の動作"
+      description: "A short error excerpt is enough. Remove personal information. / エラーは必要な箇所だけ、個人情報を除いて記入してください。"
+    validations:
+      required: true

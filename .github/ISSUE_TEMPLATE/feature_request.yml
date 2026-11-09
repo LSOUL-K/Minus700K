@@ -1,0 +1,26 @@
+name: "Feature request / 機能要望"
+description: "Suggest an improvement / 改善案を提案する"
+title: "[Feature] "
+body:
+  - type: markdown
+    attributes:
+      value: "Japanese and English are welcome. Search existing issues first. / 日本語・英語で記入できます。既存のIssueも確認してください。"
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problem or use case / 困っていること・利用場面"
+      description: "Explain what you want to accomplish. / どのような場面で、何をしたいかを説明してください。"
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: "Suggested improvement / 希望する改善"
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives or context / 代替案・補足"
+    validations:
+      required: false

@@ -1,0 +1,28 @@
+/bin/
+/vendor/
+/runtime/
+/dist/
+/output/
+/config.json
+# Protect personal text left behind by older installations or aborted upgrades.
+/custom-instructions.txt
+/web-search-triggers.txt
+/.config-migrate-*.tmp
+/connection/
+auth.json
+chatgpt.dat
+*.download
+
+# Local editor history and machine-specific workspace state.
+/.history/
+/.vs/
+/.vscode/
+/.idea/
+/.codex/
+/.agents/
+/.aws/
+.env
+.env.*
+!.env.example
+*.user
+*.suo
