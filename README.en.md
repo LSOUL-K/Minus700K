@@ -1,30 +1,16 @@
 # Minus700K
 
-**Ask AI by voice without leaving your game or app.**
+Minus700K is a Windows tool that lets you ask AI questions by voice and hear the answers aloud while keeping your game or work app open. You can attach a screenshot of the current window and ask questions such as “What does this error mean?” or “What should I do next?”
 
-[日本語・詳しい使い方](README.md) | [Contributing](CONTRIBUTING.md)
+[日本語](README.md) | [Contributing](CONTRIBUTING.md)
 
-**Under development — not yet a stable release.** Features, settings, and installation steps may change. The GitHub repository is being prepared for release; the source code and Windows download will be added when they are ready.
+## Requirements
 
-Minus700K is a free Windows tray application that lets you ask questions about the app you are using and hear the answers aloud. Keep your game or work window in the foreground while asking for help.
+- Windows 10/11 (x64) and .NET Framework 4.8
+- A microphone, speakers or headphones, and a Windows text-to-speech voice (including a Japanese voice if you use the app in Japanese)
+- A ChatGPT account that supports connecting to this app, and an internet connection
 
-## How it works
-
-1. Hold **Alt+Q** and speak. When screen capture is enabled, Minus700K captures the foreground window once.
-2. Release **Alt+Q** to send your question.
-3. Listen to the spoken answer while continuing your activity.
-
-Use **Alt+E** to cancel recording, processing, or playback, and **Alt+R** to replay the last answer. These are the default shortcuts; they can be changed in Settings.
-
-Screen capture is optional. Minus700K provides answers and guidance; it does not operate the target app for you.
-
-## Availability and languages
-
-The current development target is Windows 10/11 x64 with .NET Framework 4.8, a microphone, and a suitable installed Windows speech voice. The app uses the official Codex CLI and the user's own ChatGPT sign-in and eligible plan. The app is free; access to the AI service and its usage limits are governed separately.
-
-Minus700K supports Japanese and English, including the interface, notifications, AI instructions, and spoken search and history commands. Changing **General → Language** also sets **Advanced → Show advanced settings → Speech recognition language** to the selected language and **Audio → Voice** to **Match the application language**. The app selects an installed voice for that language, falling back to the Windows default voice if none is available. You can choose a different speech recognition language or voice afterward. Select **Save and apply** to apply the changes; closing without saving leaves the active settings unchanged.
-
-Custom instructions, application instructions, and search keywords share one saved configuration across languages. When you change the app language, any of these fields that still match a Japanese or English default switch to the selected language's default, including the text shown in Settings. Edited text and empty fields are kept as written. Examples of English commands include “Search the web for this,” “Don't search the web,” “Tell me more,” and “What did I ask two questions ago?” See [the localization guide](LOCALIZATION.md) for development details.
+No OpenAI API key is required. The AI service is subject to your account's terms and usage limits.
 
 ## Getting started
 
@@ -34,19 +20,66 @@ Custom instructions, application instructions, and search keywords share one sav
 
 Windows may ask for administrator approval when installing a required speech recognition component.
 
-This is a development installer; a stable public release is not available yet.
+## Basic controls
 
-## Privacy and control
+Keep the game or app you want to ask about in the foreground, then **hold Alt+Q to speak and release it to send your question**. The answer is read aloud, and you can continue working while you wait.
 
-- A question starts when you press the recording shortcut.
-- Screen capture can be disabled in Settings.
-- Questions and enabled screen captures are sent to the configured AI service. This is not a fully offline assistant.
-- Conversation saving is off by default and can be enabled in Settings. Previous questions are not consulted while saving is off. Diagnostic storage is also configurable. Do not include recordings, screenshots, account details, or access tokens in public bug reports.
+| Shortcut | Action |
+|---|---|
+| **Alt+Q** | Record while held; release to send |
+| **Alt+E** | Cancel recording, answer processing, or speech playback |
+| **Alt+R** | Read the last answer aloud again |
 
-## Support development
+You can change these keys in Settings.
+
+Screen capture is ON by default. The app captures the foreground window once when recording starts. If you do not want to send an image, turn off **General → Use screen capture**. If capture fails, your question continues without an image.
+
+To quit, right-click the notification area icon and select **Exit**.
+
+## Settings
+
+Double-click the notification area icon to open Settings.
+
+| Tab | Main settings |
+|---|---|
+| General | Display language, keyboard shortcuts, screen capture |
+| Audio | Microphone, speakers, reading voice, speech rate and volume, sound effects and waiting sounds |
+| Search | Web search behavior, automatic retry, search keywords |
+| Custom instructions | Preferences such as answer length and writing style |
+| History and storage | Saving and referring to conversations, debug logging |
+| Connection | ChatGPT sign-in, answer model, usage, sign-out |
+| Advanced | Advanced settings such as recording duration, answer timeout, and speech recognition language |
+
+After making changes, select **Save and apply** or press **Ctrl+S**. If recording or answer processing is in progress, wait for it to finish or cancel with Alt+E before saving.
+
+To choose an answer model, select **Connection → Load available models**. If you need to sign in again, authenticate using **Continue with ChatGPT**.
+
+Japanese and English are supported. You can change the language under **General → Application language**.
+
+## Useful tips
+
+- **Search the web:** The default mode is **When needed**. Say “Search the web for this” or include a web search keyword in your question to search. The app automatically searches again if needed. Say “Don't search the web” to skip searching for that question.
+- **Ask follow-up questions:** Say “Tell me more” or “What did I ask two questions ago?” to refer to past conversations in this app. Both **Save conversations** and **Refer to previous questions** must be ON under **History and storage**.
+- **Adjust the answers:** Enter preferences such as “Keep answers short” or “Explain for a beginner” under **Custom instructions**.
+
+## Data handling
+
+Recorded audio is transcribed on your PC. The question text and information about the foreground app are sent to the AI service, along with an image if screen capture is ON.
+
+- **Conversation saving is OFF by default.** Turn it on under **History and storage** to save conversations in a dedicated Minus700K location on your PC. Saved conversations are used as needed based on your questions and are not deleted automatically. **The app does not add conversations to your ChatGPT chat history or retrieve past conversations from ChatGPT.**
+- **Debug logging is OFF by default.** When enabled, it saves full data on your PC, including recorded audio, images, and diagnostic records. You can view these files under **History and storage → Open saved files folder**. They are not deleted automatically.
+
+## How this app came to be
+
 This app was born from losing $700K in the AI stock crash. Any support is deeply appreciated. Elon Musk, please send help.
+
+```text
+$0 / $700,000 (0.0000%)
+```
+
 - **Ko-fi:** [Donate on Ko-fi](https://ko-fi.com/lsoul)
 - **Bitcoin:** [Donate with your wallet](bitcoin:bc1q4kvzh4dthqpcrerzh6deww9zw7m220cd05ufj5?message=Minus700K%20donations)
+
 Bitcoin address (for copying):
 ```text
 bc1q4kvzh4dthqpcrerzh6deww9zw7m220cd05ufj5
@@ -56,6 +89,6 @@ You can also help by reporting reproducible bugs, suggesting improvements, and c
 
 ## License
 
-The application source and original assets are licensed under [MIT](LICENSE). Dependencies and external services have their own terms; see [third-party notices](THIRD-PARTY-NOTICES.md).
+The app is free, open-source software available under the [MIT license](LICENSE). For dependency licenses, see the [third-party notices](THIRD-PARTY-NOTICES.md).
 
-Minus700K is an independent project and is not an official OpenAI application.
+Minus700K is not an official OpenAI application.
