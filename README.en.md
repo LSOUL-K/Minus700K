@@ -20,22 +20,37 @@ Screen capture is optional. Minus700K provides answers and guidance; it does not
 
 ## Availability and languages
 
-The current development target is Windows x64 with .NET Framework 4.8, a microphone, and a suitable installed Windows speech voice. The app uses the official Codex CLI and the user's own ChatGPT sign-in and eligible plan. The app is free; access to the AI service and its usage limits are governed separately.
+The current development target is Windows 10/11 x64 with .NET Framework 4.8, a microphone, and a suitable installed Windows speech voice. The app uses the official Codex CLI and the user's own ChatGPT sign-in and eligible plan. The app is free; access to the AI service and its usage limits are governed separately.
 
-Japanese is the primary development language. English and Simplified Chinese translations are in progress; untranslated text may fall back to Japanese. Choosing an interface language does not automatically change speech-recognition settings. See [the localization guide](LOCALIZATION.md) for the current scope.
+Minus700K supports Japanese and English, including the interface, notifications, AI instructions, and spoken search and history commands. Changing **General → Language** also sets **Advanced → Show advanced settings → Speech recognition language** to the selected language and **Audio → Voice** to **Match the application language**. The app selects an installed voice for that language, falling back to the Windows default voice if none is available. You can choose a different speech recognition language or voice afterward. Select **Save and apply** to apply the changes; closing without saving leaves the active settings unchanged.
 
-Developer setup instructions are in the [Japanese README](README.md). A stable Windows download is not available yet.
+Custom instructions, application instructions, and search keywords share one saved configuration across languages. When you change the app language, any of these fields that still match a Japanese or English default switch to the selected language's default, including the text shown in Settings. Edited text and empty fields are kept as written. Examples of English commands include “Search the web for this,” “Don't search the web,” “Tell me more,” and “What did I ask two questions ago?” See [the localization guide](LOCALIZATION.md) for development details.
+
+## Getting started
+
+1. Open **`Minus700K-Setup.exe`** and follow the installer. Speech recognition files are included, and Codex CLI is installed automatically if needed.
+2. Start **Minus700K** from the Windows Start menu. Its icon appears in the notification area.
+3. Double-click that icon to open **Settings**, then select **Connection → Continue with ChatGPT**. Sign in and grant permission in your browser to complete the connection.
+
+Windows may ask for administrator approval when installing a required speech recognition component.
+
+This is a development installer; a stable public release is not available yet.
 
 ## Privacy and control
 
 - A question starts when you press the recording shortcut.
 - Screen capture can be disabled in Settings.
 - Questions and enabled screen captures are sent to the configured AI service. This is not a fully offline assistant.
-- Conversation and diagnostic storage are configurable. Do not include recordings, screenshots, account details, or access tokens in public bug reports.
+- Conversation saving is off by default and can be enabled in Settings. Previous questions are not consulted while saving is off. Diagnostic storage is also configurable. Do not include recordings, screenshots, account details, or access tokens in public bug reports.
 
 ## Support development
-
-Minus700K is free to use. Optional donations are planned to support development and maintenance; they will not be required to use the app. A donation link will be added once the receiving account is ready.
+This app was born from losing $700K in the AI stock crash. Any support is deeply appreciated. Elon Musk, please send help.
+- **Ko-fi:** [Donate on Ko-fi](https://ko-fi.com/lsoul)
+- **Bitcoin:** [Donate with your wallet](bitcoin:bc1q4kvzh4dthqpcrerzh6deww9zw7m220cd05ufj5?message=Minus700K%20donations)
+Bitcoin address (for copying):
+```text
+bc1q4kvzh4dthqpcrerzh6deww9zw7m220cd05ufj5
+```
 
 You can also help by reporting reproducible bugs, suggesting improvements, and contributing translations. Japanese and English contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
