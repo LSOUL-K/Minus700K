@@ -5,7 +5,9 @@
 ![概要図](.github/assets/minus700k-overview-ja-simple-v2.png)
 
 ゲームや作業中のアプリを開いたまま、声でAIに質問し、回答を音声で聞けるWindows用ツールです。  
-表示中の画面を添付して「このエラーの意味は？」「次は何をすればいい？」と質問できます。
+表示中の画面を添付して「このエラーの意味は？」「次は何をすればいい？」と質問できます。  
+
+https://github.com/user-attachments/assets/bcfac281-3ea8-414b-9adb-f291029c593d
 
 [English](README.en.md) | [開発への参加](CONTRIBUTING.md)
 
