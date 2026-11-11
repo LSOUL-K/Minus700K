@@ -2,8 +2,10 @@
 
 **"What is this?"**
 **AI: "What you see on the screen right now is the GitHub page for an AI-integration app by LSOUL."**
+![Schematic diagram](.github/assets/minus700k-overview-en-simple.png)
 
-Minus700K is a Windows tool that lets you ask AI questions by voice and hear the answers aloud while keeping your game or work app open. You can attach a screenshot of the current window and ask questions such as “What does this error mean?” or “What should I do next?”
+Minus700K is a Windows tool that lets you ask AI questions by voice and hear the answers aloud while keeping your game or work app open.
+You can attach a screenshot of the current window and ask questions such as “What does this error mean?” or “What should I do next?”
 
 [日本語](README.md) | [Contributing](CONTRIBUTING.md)
 
