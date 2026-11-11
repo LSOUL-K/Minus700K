@@ -82,14 +82,6 @@ Japanese and English are supported. You can change the language under **General 
 - **Ask follow-up questions:** Every request includes the exchanges still held in memory, and the AI uses relevant context. No special wording is required: “What about the other option?” also works. Change the memory limit under **Memory and history**.
 - **Adjust the answers:** Enter preferences such as “Keep answers short” or “Explain for a beginner” under **Custom instructions**.
 
-## Data handling
-
-Recorded audio is transcribed on your PC. The question text and information about the foreground app are sent to the AI service, along with an image if screen capture is ON.
-
-- **Conversations are not saved on your PC unless debug logging is enabled.** There is no saved-conversation lookup. Temporary audio and image files needed for processing are deleted after the request completes, fails, or is canceled. **The app does not add conversations to your ChatGPT chat history or retrieve past conversations from ChatGPT.**
-- **The memory temporarily stores recent conversations and passes them to the AI ​​each time.** Each question-and-answer pair counts as one exchange, with one limit across the app. This works across windows and topics; the AI chooses relevant context. Applying settings preserves exchanges within the memory limit. Older exchanges are discarded when the limit is exceeded, and all are cleared when the app exits, without being restored after restart. Set the memory limit to 0 to disable both retention and sending of recent exchanges.
-- **Debug logging is OFF by default.** When enabled, it saves full data on your PC, including questions, answers, recorded audio, images, and diagnostic records. You can view these files under **Memory and history → Open saved files folder**. They are not deleted automatically, so leave this OFF if you do not want to retain conversations. Changing debug logging does not affect conversation memory.
-
 ## How this app came to be
 
 This app was born from losing $700K(110,000,000 yen) in the AI stock crash.
