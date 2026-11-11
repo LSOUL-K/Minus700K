@@ -92,8 +92,8 @@ Elon Musk, please send help.
 $5 / $700,000 (0.0007%)
 ```
 
-- **Ko-fi:** [Donate on Ko-fi](https://ko-fi.com/lsoul)
-- **Bitcoin:** <img src=".github/assets/2026-11-12 002911.png" alt="Bitcoin寄付先のQRコード" width="240"> bc1q4kvzh4dthqpcrerzh6deww9zw7m220cd05ufj5
+- ### Ko-fi： [Donate on Ko-fi](https://ko-fi.com/lsoul)
+- ### Bitcoin： <img src=".github/assets/2026-11-12 002911.png" alt="Bitcoin QR Code" width="240"> bc1q4kvzh4dthqpcrerzh6deww9zw7m220cd05ufj5
 
 You can also help by reporting reproducible bugs, suggesting improvements, and contributing translations. Japanese and English contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
