@@ -58,7 +58,7 @@ Double-click the notification area icon to open Settings.
 | Audio | Microphone, speakers, reading voice, speech rate and volume, sound effects and waiting sounds |
 | Search | Web search behavior, automatic retry, search keywords |
 | Custom instructions | Preferences such as answer length and writing style |
-| Memory and debug | Number of recent exchanges kept in memory, debug logging |
+| Memory and history | Number of recent exchanges kept in memory, debug logging |
 | Connection | ChatGPT sign-in, answer model, usage, sign-out |
 | Advanced | Advanced settings such as recording duration, answer timeout, and speech recognition language |
 
@@ -84,8 +84,10 @@ Recorded audio is transcribed on your PC. The question text and information abou
 
 ## How this app came to be
 
-This app was born from losing $700K in the AI stock crash. Any support is deeply appreciated. Elon Musk, please send help.
-
+This app was born from losing $700K(110,000,000 yen) in the AI stock crash.
+Any support is deeply appreciated.
+Elon Musk, please send help.
+![loss amount](.github/assets/loss-amount.jpg)
 ```text
 $5 / $700,000 (0.0007%)
 ```
