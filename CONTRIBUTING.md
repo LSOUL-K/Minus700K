@@ -13,5 +13,5 @@ Do not attach account credentials, tokens, `config.json`, recordings, screenshot
 
 ## Translations / 翻訳
 
-See [LOCALIZATION.md](LOCALIZATION.md). Japanese and English are supported. Preserve resource keys and format placeholders, and update both catalogs when adding or changing text. English speech-command rules have their own regression tests; do not treat these regular expressions as ordinary prose translations.
-[LOCALIZATION.md](LOCALIZATION.md)に従い、リソースのキーと書式の引数を維持してください。対応言語は日本語・英語です。文言を追加・変更する場合は両方のカタログを更新し、英語の音声指示判定ルールは専用テストでも検証してください。
+See [LOCALIZATION.md](LOCALIZATION.md). Japanese and English are supported. Preserve resource keys and format placeholders, and update both catalogs when adding or changing text.
+[LOCALIZATION.md](LOCALIZATION.md)に従い、リソースのキーと書式の引数を維持してください。対応言語は日本語・英語です。
