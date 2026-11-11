@@ -17,9 +17,9 @@
 [Setup]
 AppId={#InstallerAppId}
 AppName=Minus700K
-AppVersion=0.1.0-dev
-AppVerName=Minus700K (Development)
-VersionInfoVersion=0.1.0.0
+AppVersion=1.0.0
+AppVerName=Minus700K 1.0
+VersionInfoVersion=1.0.0.0
 AppPublisher=Minus700K contributors
 DefaultDirName={localappdata}\Programs\Minus700K
 DefaultGroupName={#InstallerGroupName}
