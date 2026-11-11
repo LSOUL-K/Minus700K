@@ -15,8 +15,6 @@ You can attach a screenshot of the current window and ask questions such as “W
 
 [Release notes](https://github.com/LSOUL-K/Minus700K/releases/tag/v1.0.0) | [SHA-256 checksum](https://github.com/LSOUL-K/Minus700K/releases/download/v1.0.0/Minus700K-Setup.exe.sha256)
 
-The installer is not code-signed. Windows may display an unknown-publisher or SmartScreen warning. Verify the download source and SHA-256 checksum before running it.
-
 ## Requirements
 
 - Windows 10/11 (x64) and .NET Framework 4.8
