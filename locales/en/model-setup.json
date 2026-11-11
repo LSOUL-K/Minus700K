@@ -1,0 +1,12 @@
+{
+  "modelSetup.title": "Minus700K — Speech recognition setup",
+  "modelSetup.description": "Downloading the speech recognition model (about 190 MB) requires an internet connection the first time.",
+  "modelSetup.connecting": "Connecting to the download server…",
+  "modelSetup.progress": "Downloading: {0:0.0} / {1:0.0} MB",
+  "modelSetup.cancelling": "Stopping the download…",
+  "modelSetup.retry": "Retry",
+  "modelSetup.close": "Exit",
+  "modelSetup.failed": "Download failed. Check your internet connection and free disk space, then try again.",
+  "modelSetup.writeFailed": "The model could not be saved. Check write access to the app folder, then try again.",
+  "modelSetup.invalid": "The downloaded file could not be verified. Please try again."
+}

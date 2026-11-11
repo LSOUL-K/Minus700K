@@ -1,0 +1,12 @@
+{
+  "modelSetup.title": "Minus700K — 音声認識の準備",
+  "modelSetup.description": "音声認識モデル（約190MB）をダウンロードします。初回のみインターネット接続が必要です。",
+  "modelSetup.connecting": "ダウンロード先に接続しています…",
+  "modelSetup.progress": "ダウンロード中: {0:0.0} / {1:0.0} MB",
+  "modelSetup.cancelling": "ダウンロードを中止しています…",
+  "modelSetup.retry": "再試行",
+  "modelSetup.close": "終了",
+  "modelSetup.failed": "ダウンロードできませんでした。インターネット接続とディスクの空き容量を確認して、再試行してください。",
+  "modelSetup.writeFailed": "モデルを保存できませんでした。アプリのフォルダーへの書き込み権限を確認して、再試行してください。",
+  "modelSetup.invalid": "ダウンロードしたファイルを確認できませんでした。再試行してください。"
+}

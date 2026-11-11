@@ -5,8 +5,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        Japanese and English are welcome. Minus700K is under development.
-        日本語・英語で記入できます。Minus700Kは開発中です。
+        Japanese and English are welcome.
+        日本語・英語で記入できます。
         Do not attach credentials, config.json, recordings, private screenshots, or full diagnostic folders.
         認証情報・設定ファイル・録音・個人情報を含む画像・診断フォルダー全体は添付しないでください。
   - type: input

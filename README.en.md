@@ -14,11 +14,17 @@ No OpenAI API key is required. The AI service is subject to your account's terms
 
 ## Getting started
 
-1. Open **`Minus700K-Setup.exe`** and follow the installer. Speech recognition files are included, and Codex CLI is installed automatically if needed.
-2. Start **Minus700K** from the Windows Start menu. Its icon appears in the notification area.
-3. Double-click that icon to open **Settings**, then select **Connection → Continue with ChatGPT**. Sign in and grant permission in your browser to complete the connection.
+The app is installed **for the current Windows user only**, normally in `C:\Users\<username>\AppData\Local\Programs\Minus700K`.
+
+1. Open **`Minus700K-Setup.exe`**, choose a language, and follow the installer. The selected language also applies to the app. The speech recognition engine is included, and Codex CLI is installed automatically if needed.
+2. Leave **Start Minus700K** selected on the completion screen. On first launch, the app downloads its speech recognition model (about 190 MB), then opens the **Connection** tab in Settings. An internet connection is required for this download; if it fails, select **Retry** or restart the app later.
+3. Select **Continue with ChatGPT**, then sign in and grant permission in your browser.
+
+To start the app later, open **Minus700K** from the Windows Start menu. To return to the connection settings, double-click its notification-area icon and select **Connection**.
 
 Windows may ask for administrator approval when installing a required speech recognition component.
+
+Before uninstalling, choose **Exit** from the Minus700K notification-area icon and close any open settings or other app windows. If the app is still running, the uninstaller stops without deleting application files.
 
 ## Basic controls
 
@@ -31,6 +37,7 @@ Keep the game or app you want to ask about in the foreground, then **hold Alt+Q 
 | **Alt+R** | Read the last answer aloud again |
 
 You can change these keys in Settings.
+Shortcuts can be shared with other apps. Their actions may run at the same time.
 
 Screen capture is ON by default. The app captures the foreground window once when recording starts. If you do not want to send an image, turn off **General → Use screen capture**. If capture fails, your question continues without an image.
 
@@ -46,7 +53,7 @@ Double-click the notification area icon to open Settings.
 | Audio | Microphone, speakers, reading voice, speech rate and volume, sound effects and waiting sounds |
 | Search | Web search behavior, automatic retry, search keywords |
 | Custom instructions | Preferences such as answer length and writing style |
-| History and storage | Saving and referring to conversations, debug logging |
+| Memory and debug | Number of recent exchanges kept in memory, debug logging |
 | Connection | ChatGPT sign-in, answer model, usage, sign-out |
 | Advanced | Advanced settings such as recording duration, answer timeout, and speech recognition language |
 
@@ -59,22 +66,23 @@ Japanese and English are supported. You can change the language under **General 
 ## Useful tips
 
 - **Search the web:** The default mode is **When needed**. Say “Search the web for this” or include a web search keyword in your question to search. The app automatically searches again if needed. Say “Don't search the web” to skip searching for that question.
-- **Ask follow-up questions:** Say “Tell me more” or “What did I ask two questions ago?” to refer to past conversations in this app. Both **Save conversations** and **Refer to previous questions** must be ON under **History and storage**.
+- **Ask follow-up questions:** Every request includes the exchanges still held in memory, and the AI uses relevant context. No special wording is required: “What about the other option?” also works. Change the memory limit under **Memory and debug**.
 - **Adjust the answers:** Enter preferences such as “Keep answers short” or “Explain for a beginner” under **Custom instructions**.
 
 ## Data handling
 
 Recorded audio is transcribed on your PC. The question text and information about the foreground app are sent to the AI service, along with an image if screen capture is ON.
 
-- **Conversation saving is OFF by default.** Turn it on under **History and storage** to save conversations in a dedicated Minus700K location on your PC. Saved conversations are used as needed based on your questions and are not deleted automatically. **The app does not add conversations to your ChatGPT chat history or retrieve past conversations from ChatGPT.**
-- **Debug logging is OFF by default.** When enabled, it saves full data on your PC, including recorded audio, images, and diagnostic records. You can view these files under **History and storage → Open saved files folder**. They are not deleted automatically.
+- **Conversations are not saved on your PC unless debug logging is enabled.** There is no saved-conversation lookup. Temporary audio and image files needed for processing are deleted after the request completes, fails, or is canceled. **The app does not add conversations to your ChatGPT chat history or retrieve past conversations from ChatGPT.** Files saved by earlier versions are neither deleted automatically nor consulted.
+- **The 3 most recent exchanges are kept temporarily in memory and sent with every AI request by default.** Each question-and-answer pair counts as one exchange, with one limit across the app. This works across windows and topics; the AI chooses relevant context. Applying settings preserves exchanges within the memory limit. Older exchanges are discarded when the limit is exceeded, and all are cleared when the app exits, without being restored after restart. Set the memory limit to 0 to disable both retention and sending of recent exchanges.
+- **Debug logging is OFF by default.** When enabled, it saves full data on your PC, including questions, answers, recorded audio, images, and diagnostic records. You can view these files under **Memory and debug → Open saved files folder**. They are not deleted automatically, so leave this OFF if you do not want to retain conversations. Changing debug logging does not affect conversation memory.
 
 ## How this app came to be
 
 This app was born from losing $700K in the AI stock crash. Any support is deeply appreciated. Elon Musk, please send help.
 
 ```text
-$0 / $700,000 (0.0000%)
+$5 / $700,000 (0.0007%)
 ```
 
 - **Ko-fi:** [Donate on Ko-fi](https://ko-fi.com/lsoul)

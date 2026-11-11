@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+<title id="title">Minus700K アプリ本体</title><desc id="desc">Editable vector reconstruction of the approved minus-only microphone and speech-bubble icon. Large editable master artwork.</desc>
+<defs><linearGradient id="tileGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0B101D"/><stop offset="1" stop-color="#050916"/></linearGradient><linearGradient id="micGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F1F6FE"/><stop offset="1" stop-color="#E4EDFB"/></linearGradient></defs>
+<rect id="tile" x="28" y="40" width="968" height="944" rx="174" fill="url(#tileGradient)"/>
+<g id="brand-mark"><rect id="microphone" x="344" y="140" width="336" height="526" rx="168" fill="url(#micGradient)"/><rect id="minus" x="400" y="382" width="224" height="60" rx="30" fill="#080D19"/><g id="speech-bubble" fill="#3698F5"><path id="receiver" d="M258 448V504C258 648 370 754 512 754C654 754 766 648 766 504V448" fill="none" stroke="#3698F5" stroke-width="82" stroke-linecap="round"/><path id="bubble-tail" d="M504 744L488 866Q484 889 505 875L615 772Z"/></g></g>
+
+</svg>

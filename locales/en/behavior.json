@@ -1,0 +1,16 @@
+{
+  "behavior.search.network": "(?:web|internet|online)",
+  "behavior.search.ending": "",
+  "behavior.search.negative": "\\b(?:do\\s+not|don't|dont|never|no\\s+need\\s+to|without|avoid|stop|skip)\\s+(?:any\\s+)?(?:(?:the\\s+)?(?:web|internet|online)\\s+)?(?:search(?:ing|es)?|brows(?:e|ing)|look(?:ing)?\\s+(?:(?:it|this|that|these|those|them)\\s+)?up|research(?:ing)?)\\b|\\b(?:do\\s+not|don't|dont|never|without|avoid)\\s+(?:us(?:e|ing)|consult(?:ing)?|check(?:ing)?|access(?:ing)?|refer(?:ring)?\\s+to)\\s+(?:any\\s+|the\\s+)?{network}\\b|\\b(?:no|disable|turn\\s+off)\\s+(?:web|internet|online)\\s+(?:search(?:ing|es)?|browsing|access)\\b|\\b(?:use|consider|rely\\s+on)\\s+(?:only|just)\\s+(?:the\\s+)?(?:image|screen|screenshot)\\b|\\b(?:image|screen|screenshot)\\s+(?:only|alone)\\b|\\b(?:answer|respond)\\s+(?:only|just)\\s+(?:from|using|based\\s+on)\\s+(?:the\\s+)?(?:image|screen|screenshot)\\b|\\b(?:do\\s+not|don't|dont|never|avoid|without)\\s+(?:perform(?:ing)?|do(?:ing)?|conduct(?:ing)?|run(?:ning)?)\\s+(?:an?\\s+|any\\s+)?(?:(?:web|internet|online)\\s+)?search(?:es|ing)?\\b|(?:^|[.!?;,]\\s*|\\bplease\\s+)no\\s+(?:(?:web|internet|online)\\s+)?search(?:ing)?(?:\\s+please)?(?=$|[.!?,;])",
+  "behavior.search.positive": "(?:^|[.!?;,]\\s*|\\b(?:please|can\\s+you|could\\s+you|would\\s+you|will\\s+you)\\s+|\\bi\\s+(?:want|need|would\\s+like)\\s+you\\s+to\\s+)(?:(?:please|also)\\s+)?(?:search\\s+(?:for\\b|(?:the\\s+)?{network}\\b)|(?:web|internet)\\s+search\\b|look\\s+(?:(?:it|this|that|these|those|them)\\s+)?up\\b|(?:browse|use)\\s+(?:the\\s+)?(?:web|internet)\\b|(?:check|find|research)\\b[^.!?;]{0,100}\\b(?:online|on\\s+the\\s+(?:web|internet))\\b){ending}",
+  "behavior.search.whitespacePattern": "\\s+",
+  "behavior.search.whitespaceReplacement": " ",
+  "behavior.search.replacements": "’\t'\n‘\t'",
+  "behavior.quoted": "「[^」]*」|『[^』]*』|\"(?:\\\\.|[^\"\\\\])*\"|“[^”]*”|‘[^’]*’|(?<![\\p{L}\\p{Nd}])'(?:[^'\\r\\n]|(?<=[\\p{L}\\p{Nd}])'(?=[\\p{L}\\p{Nd}]))*'(?![\\p{L}\\p{Nd}])",
+  "behavior.transcription.annotations": "(?i)\\[[^\\]]*\\]|\\((?:music|silence|applause|noise|background\\s+noise|inaudible|unintelligible|laughter|laughing|crosstalk)(?:\\s+[^)]*)?\\)",
+  "behavior.speech.date": "(?:\\d{4}[-/]\\d{1,2}[-/]\\d{1,2}|(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\.?\\s+\\d{1,2},?\\s+\\d{4}|\\d{1,2}\\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\.?\\s+\\d{4})",
+  "behavior.speech.verified": "(?i:(?:(?:last\\s+)?(?:checked|verified)|(?:date\\s+(?:checked|verified))|verification\\s+date)\\s*:\\s*{date})",
+  "behavior.speech.sourceHeading": "(?i:\\b(?:sources?|references?|citations?))\\s*[:：][ \\t・、,，;；/／|｜]*(?=\\r?$)",
+  "behavior.speech.sentenceEnd": ".",
+  "behavior.speech.noVoices": "No text-to-speech voices are installed. Check your Windows speech settings."
+}
