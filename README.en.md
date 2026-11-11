@@ -83,7 +83,6 @@ Japanese and English are supported. You can change the language under **General 
 This app was born from losing $700K(110,000,000 yen) in the AI stock crash.  
 Any support is deeply appreciated.  
 Elon Musk, please send help.
-![loss amount](.github/assets/loss-amount.jpg)
 ```text
 $5 / $700,000 (0.0007%)
 ```
