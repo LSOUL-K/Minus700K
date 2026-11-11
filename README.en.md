@@ -4,7 +4,7 @@
 **AI: "What you see on the screen right now is the GitHub page for an AI-integration app by LSOUL."**
 ![Schematic diagram](.github/assets/minus700k-overview-en-simple.png)
 
-Minus700K is a Windows tool that lets you ask AI questions by voice and hear the answers aloud while keeping your game or work app open.
+Minus700K is a Windows tool that lets you ask AI questions by voice and hear the answers aloud while keeping your game or work app open.  
 You can attach a screenshot of the current window and ask questions such as “What does this error mean?” or “What should I do next?”
 
 [日本語](README.md) | [Contributing](CONTRIBUTING.md)
@@ -47,9 +47,7 @@ Keep the game or app you want to ask about in the foreground, then **hold Alt+Q 
 | **Alt+E** | Cancel recording, answer processing, or speech playback |
 | **Alt+R** | Read the last answer aloud again |
 
-You can change these keys in Settings.
-Shortcuts can be shared with other apps. Their actions may run at the same time.
-
+You can change these keys in Settings.  
 Screen capture is ON by default. The app captures the foreground window once when recording starts. If you do not want to send an image, turn off **General → Use screen capture**. If capture fails, your question continues without an image.
 
 To quit, right-click the notification area icon and select **Exit**.
@@ -82,8 +80,8 @@ Japanese and English are supported. You can change the language under **General 
 
 ## How this app came to be
 
-This app was born from losing $700K(110,000,000 yen) in the AI stock crash.
-Any support is deeply appreciated.
+This app was born from losing $700K(110,000,000 yen) in the AI stock crash.  
+Any support is deeply appreciated.  
 Elon Musk, please send help.
 ![loss amount](.github/assets/loss-amount.jpg)
 ```text
