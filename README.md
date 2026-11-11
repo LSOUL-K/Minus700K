@@ -88,7 +88,7 @@ $5 / $700,000 (0.0007%)
 ```
 
 - ### Ko-fi： [Ko-fiで寄付する](https://ko-fi.com/lsoul)
-- ### Bitcoin： <img src=".github/assets/2026-11-12 002911.png" alt="Bitcoin QR Code" width="240"> bc1q4kvzh4dthqpcrerzh6deww9zw7m220cd05ufj5
+- ### Bitcoin： <img src=".github/assets/2026-11-12 002911.png" alt="Bitcoin QR Code" width="120"> bc1q4kvzh4dthqpcrerzh6deww9zw7m220cd05ufj5
 
 不具合の報告、改善の提案、翻訳などでのご協力も歓迎します。詳しくは[開発への参加](CONTRIBUTING.md)をご覧ください。
 
