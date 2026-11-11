@@ -15,8 +15,6 @@
 
 [リリースの説明](https://github.com/LSOUL-K/Minus700K/releases/tag/v1.0.0) | [SHA-256チェックサム](https://github.com/LSOUL-K/Minus700K/releases/download/v1.0.0/Minus700K-Setup.exe.sha256)
 
-インストーラーはコード署名されていません。Windowsで発行元不明やSmartScreenの警告が表示されることがあります。実行前に入手先とSHA-256チェックサムを確認してください。
-
 ## 必要な環境
 
 - Windows 10/11（x64）、.NET Framework 4.8
