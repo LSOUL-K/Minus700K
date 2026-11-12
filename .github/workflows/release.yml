@@ -52,7 +52,17 @@ jobs:
           $existing = @($releases | Where-Object tag_name -eq $tag)
           $skip = $existing.Count -gt 0 -and -not $existing[0].draft
           if ($existing.Count -gt 0 -and $existing[0].draft -and $existing[0].target_commitish -ne $env:GITHUB_SHA) {
-            throw 'An existing draft belongs to a different commit.'
+            $previous = $existing[0].target_commitish
+            if ($previous -notmatch '^[0-9a-f]{40}$') { throw 'The existing draft has no fixed source commit.' }
+            $comparison = gh api "repos/$env:GITHUB_REPOSITORY/compare/${previous}...$env:GITHUB_SHA" | ConvertFrom-Json
+            if ($LASTEXITCODE -ne 0 -or $comparison.status -ne 'ahead' -or
+                $comparison.merge_base_commit.sha -ne $previous -or
+                @($comparison.files).Count -ne 1 -or $comparison.files[0].filename -ne '.github/workflows/release.yml') {
+              throw 'An existing draft belongs to different application sources.'
+            }
+            # Retry a failed publication only when the release workflow itself changed.
+            gh release edit $tag --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA
+            if ($LASTEXITCODE -ne 0) { throw 'Cannot resume the existing draft.' }
           }
           "version=$version" >> $env:GITHUB_OUTPUT
           "tag=$tag" >> $env:GITHUB_OUTPUT
@@ -97,8 +107,12 @@ jobs:
           }
           gh release upload $tag dist/Minus700K-Setup.exe dist/Minus700K-Setup.exe.sha256 --repo $env:GITHUB_REPOSITORY --clobber
           if ($LASTEXITCODE -ne 0) { throw 'Release asset upload failed.' }
-          $uploaded = gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$tag" | ConvertFrom-Json
+          # The tag endpoint excludes unpublished releases; the authenticated list includes drafts.
+          $releases = gh api "repos/$env:GITHUB_REPOSITORY/releases?per_page=100" | ConvertFrom-Json
           if ($LASTEXITCODE -ne 0) { throw 'Cannot verify release assets.' }
+          $matching = @($releases | Where-Object tag_name -eq $tag)
+          if ($matching.Count -ne 1 -or -not $matching[0].draft -or $matching[0].target_commitish -ne $env:GITHUB_SHA) { throw 'The release draft changed unexpectedly.' }
+          $uploaded = $matching[0]
           foreach ($name in @('Minus700K-Setup.exe','Minus700K-Setup.exe.sha256')) {
             $asset = @($uploaded.assets | Where-Object name -ceq $name)
             $local = Get-Item (Join-Path dist $name)
