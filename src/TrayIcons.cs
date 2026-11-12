@@ -5,7 +5,7 @@ using System.IO;
 using System.Windows.Forms;
 
 namespace Minus700K {
-// Own the native icon handles for the lifetime of the notification icon.
+// Own the native icon handles for the lifetime of a notification icon or window.
 // All states are loaded once from the executable; key transitions never read SMB files.
 internal sealed class TrayIcons : IDisposable {
     readonly Dictionary<string,Icon> icons=new Dictionary<string,Icon>(StringComparer.Ordinal);

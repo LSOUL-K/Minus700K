@@ -36,6 +36,11 @@ internal static class SettingsUiDiagnostics {
             var debug=(CheckBox)form.Inputs["KeepRequestFiles"]; debug.Checked=true;
             Check(form.Draft.KeepRequestFiles && !original.KeepRequestFiles && File.ReadAllBytes(config).SequenceEqual(baseline),"debug saving toggle edits only the draft"); debug.Checked=false;
             var speaker=(ComboBox)form.Inputs["SpeakerDevice"];
+            var exclusive=(CheckBox)form.Inputs["ExclusiveMicrophone"];
+            Check(!exclusive.Checked && !form.Draft.ExclusiveMicrophone,"exclusive microphone defaults to OFF");
+            exclusive.Checked=true;
+            Check(form.Draft.ExclusiveMicrophone && !original.ExclusiveMicrophone && File.ReadAllBytes(config).SequenceEqual(baseline),"exclusive microphone changes only the draft");
+            exclusive.Checked=false;
             Check(speaker.Items.Count==2 && form.Draft.SpeakerDevice==original.SpeakerDevice && speaker.SelectedItem.ToString().Contains("未接続"),"disconnected speaker remains selectable without losing saved endpoint ID");
             speaker.SelectedIndex=0;
             Check(form.Draft.SpeakerDevice=="" && original.SpeakerDevice=="fixture-speaker-id","Windows routing selection changes only draft");
@@ -56,6 +61,10 @@ internal static class SettingsUiDiagnostics {
             ((CheckBox)form.Inputs["CustomInstructionsEnabled"]).Checked=true; ((CheckBox)form.Inputs["WebSearchTriggersEnabled"]).Checked=true;
             Check(form.Draft.CustomInstructionsEnabled && form.Draft.WebSearchTriggersEnabled && form.Draft.CustomInstructionsText=="OFFの間に編集した指示\r\n" && form.Draft.WebSearchTriggersText=="OFFの間に編集したキーワード\r\n","re-enabling instructions and keywords preserves edited draft text");
             ((NumericUpDown)form.Inputs["SpeechVolume"]).Value=37;
+            var otherVolume=(NumericUpDown)form.Inputs["OtherApplicationVolume"];
+            Check(otherVolume.Minimum==0 && otherVolume.Maximum==100 && otherVolume.Value==100,"other application volume defaults to 100 with full zero to hundred range");
+            otherVolume.Value=0;
+            Check(form.Draft.OtherApplicationVolume==0 && original.OtherApplicationVolume==100,"muting other applications edits only the isolated draft");
             ((CheckBox)form.Inputs["PlayProcessingCues"]).Checked=false;
             ((TextBox)form.Inputs["PushToTalkKey"]).Text="Ctrl+F11";
             Check(form.Draft.SpeechVolume==37 && !form.Draft.PlayProcessingCues && form.Draft.PushToTalkKey=="Ctrl+F11","controls populate isolated draft");
@@ -78,9 +87,11 @@ internal static class SettingsUiDiagnostics {
             ((TextBox)form.Inputs["PushToTalkKey"]).Text="F11";
             Check(!form.SaveAndApply() && File.ReadAllBytes(config).SequenceEqual(baseline),"OS hotkey conflict rejected without write");
             ((TextBox)form.Inputs["PushToTalkKey"]).Text="Ctrl+F11"; ((NumericUpDown)form.Inputs["SpeechVolume"]).Value=37;
-            Check(form.SaveAndApply() && form.Saved && form.AppliedSettings.SpeechVolume==37,"valid settings saved");
+            ((NumericUpDown)form.Inputs["OtherApplicationVolume"]).Value=0;
+            ((CheckBox)form.Inputs["ExclusiveMicrophone"]).Checked=true;
+            Check(form.SaveAndApply() && form.Saved && form.AppliedSettings.SpeechVolume==37 && form.AppliedSettings.OtherApplicationVolume==0 && form.AppliedSettings.ExclusiveMicrophone,"valid settings saved including audio isolation options");
         }
-        Check(Settings.Load(fixture).PushToTalkKey=="Ctrl+F11" && Settings.Load(fixture).SpeechVolume==37,"saved config is readable by resident");
+        Check(Settings.Load(fixture).PushToTalkKey=="Ctrl+F11" && Settings.Load(fixture).SpeechVolume==37 && Settings.Load(fixture).OtherApplicationVolume==0 && Settings.Load(fixture).ExclusiveMicrophone,"saved config is readable by resident");
         Check(!((Dictionary<string,object>)JsonData.Serializer().DeserializeObject(File.ReadAllText(config))).Keys.Any(SettingsStorage.IsRetiredSetting),"explicit UI save removes retired conversation options");
         Check(Settings.Load(fixture).WebSearchTriggersText==original.WebSearchTriggersText && Settings.Load(fixture).CustomInstructionsText==original.CustomInstructionsText,"saving unrelated settings preserves inline text exactly");
         using(var form=new SettingsForm(fixture,Settings.Load(fixture),null,3,true)) {
@@ -159,6 +170,9 @@ internal static class SettingsUiDiagnostics {
             report["compactLayout"]=Descendants(form).OfType<SettingsPage>().Where(p=>p.Visible).Select(p=>new { size=p.ClientSize.ToString(),display=p.DisplayRectangle.ToString(),horizontal=p.HorizontalScroll.Visible,children=p.Controls.Cast<Control>().Select(c=>new { name=c.GetType().Name,bounds=c.Bounds.ToString() }).ToArray() }).ToArray();
             foreach(var page in Descendants(form).OfType<SettingsPage>().Where(p=>p.Visible)) Check(!page.HorizontalScroll.Visible,"compact page has no horizontal scrolling");
             string small=Path.Combine(fixture,"settings-compact.png"); using(var image=new Bitmap(form.Width,form.Height)) { form.DrawToBitmap(image,new Rectangle(Point.Empty,image.Size)); image.Save(small,ImageFormat.Png); } files.Add(small);
+            form.SelectTab(1); form.PerformLayout(); Application.DoEvents();
+            foreach(var page in Descendants(form).OfType<SettingsPage>().Where(p=>p.Visible)) Check(!page.HorizontalScroll.Visible,"compact audio page has no horizontal scrolling");
+            string smallAudio=Path.Combine(fixture,"settings-audio-compact.png"); using(var image=new Bitmap(form.Width,form.Height)) { form.DrawToBitmap(image,new Rectangle(Point.Empty,image.Size)); image.Save(smallAudio,ImageFormat.Png); } files.Add(smallAudio);
             form.Close();
         }
         report["previews"]=files; report["checks"]="7 tabs / per-user debug destination / draft isolation / cancel / validation / hotkey conflicts / conditional controls / inline instructions and keywords / mixed line ending preservation / editable and persistent OFF content / in-place repeated saves and refreshed dirty baseline / runtime failure rollback / no separate text files / capture OFF-ON persistence / legacy capture default / hidden application hint preservation / config roundtrip / full and compact rendering / card dimensions";

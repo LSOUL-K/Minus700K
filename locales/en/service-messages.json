@@ -4,6 +4,7 @@
   "errors.settings.numberRange": "A numeric value in config.json is outside the allowed range.",
   "errors.settings.webSearch": "WebSearch must be on-demand, disabled, cached, or live.",
   "errors.settings.cueVolume": "CueVolume must be between 0 and 100.",
+  "errors.settings.otherApplicationVolume": "OtherApplicationVolume must be between 0 and 100.",
   "errors.settings.processingInterval": "ProcessingCueIntervalSeconds must be between 1 and 60 seconds.",
   "errors.settings.empty": "The settings file is empty.",
   "errors.hotkey.invalid": "Invalid shortcut: {0}",

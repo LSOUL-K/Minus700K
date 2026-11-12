@@ -1,0 +1,107 @@
+name: Publish Windows release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - src/AssemblyInfo.cs
+      - .github/workflows/release.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: windows-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.repository == 'LSOUL-K/Minus700K' && github.ref == 'refs/heads/main'
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Validate release version
+        id: version
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $source = Get-Content src/AssemblyInfo.cs -Raw
+          $version = [regex]::Match($source, 'AssemblyInformationalVersion\("(\d+\.\d+\.\d+)"\)').Groups[1].Value
+          if (-not $version) { throw 'Missing application release version.' }
+          $installer = Get-Content installer/Minus700K.iss -Raw
+          if ($installer -notmatch ('(?m)^AppVersion=' + [regex]::Escape($version) + '\r?$') -or
+              $installer -notmatch ('(?m)^VersionInfoVersion=' + [regex]::Escape($version + '.0') + '\r?$')) {
+            throw 'Application and installer versions differ.'
+          }
+          $tag = 'v' + $version
+          if (-not (Test-Path -LiteralPath ".github/release-notes/$tag.md")) { throw 'Release notes are missing.' }
+          $releases = gh api "repos/$env:GITHUB_REPOSITORY/releases?per_page=100" | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot check existing releases.' }
+          $existing = @($releases | Where-Object tag_name -eq $tag)
+          $skip = $existing.Count -gt 0 -and -not $existing[0].draft
+          if ($existing.Count -gt 0 -and $existing[0].draft -and $existing[0].target_commitish -ne $env:GITHUB_SHA) {
+            throw 'An existing draft belongs to a different commit.'
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "skip=$($skip.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+
+      - name: Build application and installer
+        if: steps.version.outputs.skip != 'true'
+        run: |
+          ./build.ps1
+          ./build-installer.ps1 -SkipBuild
+
+      - name: Verify distribution
+        if: steps.version.outputs.skip != 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $expected = $env:RELEASE_VERSION + '.0'
+          $application = [Diagnostics.FileVersionInfo]::GetVersionInfo((Resolve-Path bin/Minus700K.exe))
+          $setup = [Diagnostics.FileVersionInfo]::GetVersionInfo((Resolve-Path dist/Minus700K-Setup.exe))
+          if ($application.FileVersion.Trim() -ne $expected -or $setup.FileVersion.Trim() -ne $expected) { throw 'Built file versions differ.' }
+          $hash = (Get-FileHash dist/Minus700K-Setup.exe -Algorithm SHA256).Hash.ToLowerInvariant()
+          $checksum = (Get-Content dist/Minus700K-Setup.exe.sha256 -Raw).Trim()
+          if ($checksum -cne "$hash  Minus700K-Setup.exe") { throw 'Checksum mismatch.' }
+          "Installer SHA-256: $hash" >> $env:GITHUB_STEP_SUMMARY
+
+      - name: Upload and publish release
+        if: steps.version.outputs.skip != 'true'
+        env:
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = $env:RELEASE_TAG
+          $existing = gh release view $tag --repo $env:GITHUB_REPOSITORY --json isDraft,targetCommitish 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "Minus700K $env:RELEASE_VERSION" --notes-file ".github/release-notes/$tag.md" --draft
+            if ($LASTEXITCODE -ne 0) { throw 'Draft release creation failed.' }
+          } else {
+            $release = $existing | ConvertFrom-Json
+            if (-not $release.isDraft -or $release.targetCommitish -ne $env:GITHUB_SHA) { throw 'Refusing to overwrite another release.' }
+          }
+          gh release upload $tag dist/Minus700K-Setup.exe dist/Minus700K-Setup.exe.sha256 --repo $env:GITHUB_REPOSITORY --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Release asset upload failed.' }
+          $uploaded = gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$tag" | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot verify release assets.' }
+          foreach ($name in @('Minus700K-Setup.exe','Minus700K-Setup.exe.sha256')) {
+            $asset = @($uploaded.assets | Where-Object name -ceq $name)
+            $local = Get-Item (Join-Path dist $name)
+            $digest = 'sha256:' + (Get-FileHash $local.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($asset.Count -ne 1 -or $asset[0].size -ne $local.Length -or $asset[0].digest -cne $digest) { throw "Uploaded asset verification failed: $name" }
+          }
+          gh release edit $tag --repo $env:GITHUB_REPOSITORY --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }
+          "Published https://github.com/$env:GITHUB_REPOSITORY/releases/tag/$tag" >> $env:GITHUB_STEP_SUMMARY

@@ -53,6 +53,10 @@ internal static class Diagnostics {
                 ModelSettingsDiagnostics.Run(root,report);
             } else if(args[0]=="--speaker-output-test") {
                 SpeakerDiagnostics.Run(settings,report);
+            } else if(args[0]=="--other-audio-test") {
+                OtherApplicationAudioDiagnostics.Run(root,report);
+            } else if(args[0]=="--exclusive-microphone-test") {
+                ExclusiveMicrophoneDiagnostics.Run(root,report);
             } else if(args[0]=="--plan-auth-test") {
                 PlanDiagnostics.Run(report);
             } else if(args[0]=="--plan-transport-test") {

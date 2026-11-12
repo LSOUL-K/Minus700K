@@ -11,9 +11,9 @@ You can attach a screenshot of the current window and ask questions such as “W
 
 ## Download
 
-**[Download Minus700K 1.0 for Windows x64](https://github.com/LSOUL-K/Minus700K/releases/download/v1.0.0/Minus700K-Setup.exe)**
+**[Download Minus700K 1.1.0 for Windows x64](https://github.com/LSOUL-K/Minus700K/releases/download/v1.1.0/Minus700K-Setup.exe)**
 
-[Release notes](https://github.com/LSOUL-K/Minus700K/releases/tag/v1.0.0) | [SHA-256 checksum](https://github.com/LSOUL-K/Minus700K/releases/download/v1.0.0/Minus700K-Setup.exe.sha256)
+[Release notes](https://github.com/LSOUL-K/Minus700K/releases/tag/v1.1.0) | [SHA-256 checksum](https://github.com/LSOUL-K/Minus700K/releases/download/v1.1.0/Minus700K-Setup.exe.sha256)
 
 ## Requirements
 

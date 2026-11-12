@@ -13,9 +13,9 @@ https://github.com/user-attachments/assets/21094d02-9b40-4932-8564-44f9a6b33675
 
 ## ダウンロード
 
-**[Minus700K 1.0をダウンロード（Windows x64）](https://github.com/LSOUL-K/Minus700K/releases/download/v1.0.0/Minus700K-Setup.exe)**
+**[Minus700K 1.1.0をダウンロード（Windows x64）](https://github.com/LSOUL-K/Minus700K/releases/download/v1.1.0/Minus700K-Setup.exe)**
 
-[リリースの説明](https://github.com/LSOUL-K/Minus700K/releases/tag/v1.0.0) | [SHA-256チェックサム](https://github.com/LSOUL-K/Minus700K/releases/download/v1.0.0/Minus700K-Setup.exe.sha256)
+[リリースの説明](https://github.com/LSOUL-K/Minus700K/releases/tag/v1.1.0) | [SHA-256チェックサム](https://github.com/LSOUL-K/Minus700K/releases/download/v1.1.0/Minus700K-Setup.exe.sha256)
 
 ## 必要な環境
 

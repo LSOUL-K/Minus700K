@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 
 namespace Minus700K {
-internal sealed class WaveRecorder : IDisposable {
+internal sealed class WaveRecorder : IAudioRecorder {
     [StructLayout(LayoutKind.Sequential,Pack=2)] struct Format { public ushort Tag,Channels; public uint Samples,Average; public ushort Align,Bits,Extra; }
     [StructLayout(LayoutKind.Sequential)] struct Header { public IntPtr Data; public uint Length,Recorded; public IntPtr User; public uint Flags,Loops; public IntPtr Next,Reserved; }
     [StructLayout(LayoutKind.Sequential,CharSet=CharSet.Unicode)] struct Caps { public ushort Manufacturer,Product; public uint Version; [MarshalAs(UnmanagedType.ByValTStr,SizeConst=32)] public string Name; public uint Formats; public ushort Channels,Reserved; }
@@ -37,7 +37,7 @@ internal sealed class WaveRecorder : IDisposable {
         } catch { Dispose(); throw; }
     }
     static void Check(uint code) { if(code!=0) throw new InvalidOperationException(L10n.F("messages.Audio.001",code)); }
-    internal void Start() {
+    public void Start() {
         lock(gate) { pcm.SetLength(0); running=true; pending=0; allReturned.Reset(); }
         try { foreach(IntPtr p in headers) { Interlocked.Increment(ref pending); uint r=waveInAddBuffer(wave,p,HeaderSize); if(r!=0) Interlocked.Decrement(ref pending); Check(r); } Check(waveInStart(wave)); }
         catch { Stop(); throw; }
@@ -53,7 +53,7 @@ internal sealed class WaveRecorder : IDisposable {
         } catch { running=false; }
         if(Interlocked.Decrement(ref pending)==0) allReturned.Set();
     }
-    internal byte[] Stop() {
+    public byte[] Stop() {
         lock(gate) running=false;
         if(wave!=IntPtr.Zero) waveInReset(wave);
         if(pending>0 && !allReturned.WaitOne(2000)) throw new InvalidOperationException(L10n.T("messages.Audio.002"));

@@ -8,7 +8,6 @@ namespace Minus700K {
 // Name and identify our sessions explicitly, including sessions created by SAPI or rerouting.
 // Never change their volume, mute state, grouping, or selected output device.
 internal sealed class AudioSessionIdentity : IDisposable {
-    [ComImport,Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")] class EnumeratorClass { }
     [ComImport,Guid("A95664D2-9614-4F35-A746-DE8DB63617E6"),InterfaceType(ComInterfaceType.InterfaceIsIUnknown)] interface IDevices {
         [PreserveSig] int EnumAudioEndpoints(int flow,uint mask,out IDevicesList devices);
     }
@@ -59,7 +58,7 @@ internal sealed class AudioSessionIdentity : IDisposable {
     void Refresh() {
         IDevices enumerator=null; IDevicesList devices=null;
         try {
-            enumerator=(IDevices)new EnumeratorClass(); Check(enumerator.EnumAudioEndpoints(0,1,out devices));
+            enumerator=(IDevices)CoreAudioDevices.CreateEnumerator(); Check(enumerator.EnumAudioEndpoints(0,1,out devices));
             uint count; Check(devices.GetCount(out count));
             for(uint i=0;i<count;i++) {
                 IDevice device=null; object manager=null; ISessions sessions=null;

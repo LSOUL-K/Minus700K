@@ -4,6 +4,7 @@
   "errors.settings.numberRange": "config.jsonの数値が許容範囲外です。",
   "errors.settings.webSearch": "WebSearchはon-demand/disabled/cached/liveのいずれかです。",
   "errors.settings.cueVolume": "CueVolumeは0～100で指定してください。",
+  "errors.settings.otherApplicationVolume": "OtherApplicationVolumeは0～100で指定してください。",
   "errors.settings.processingInterval": "ProcessingCueIntervalSecondsは1～60秒で指定してください。",
   "errors.settings.empty": "設定ファイルが空です。",
   "errors.hotkey.invalid": "無効なショートカット: {0}",

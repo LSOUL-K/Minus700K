@@ -5,22 +5,41 @@ using System.Windows.Forms;
 namespace Minus700K {
 // The default route retains the existing System.Speech behavior. An explicit
 // speaker uses SAPI's documented AudioOutput property and asynchronous Speak.
-// All methods and timer callbacks run on the resident/settings UI thread.
+// Public methods and timer callbacks run on the resident/settings UI thread;
+// managed speech events can also arrive on a synthesis worker.
 internal sealed class SpeechPlayback : IDisposable {
     SpeechSynthesizer managed; object native; Timer completion; Prompt pending;
+    readonly object gate=new object();
+    readonly int otherApplicationVolume;
+    OtherApplicationAudio otherAudio;
     bool disposed,speaking;
     internal event EventHandler SpeakStarted,SpeakCompleted;
     internal SynthesizerState State { get { return managed!=null?managed.State:speaking?SynthesizerState.Speaking:SynthesizerState.Ready; } }
-    internal bool IsIdle { get { return State==SynthesizerState.Ready && (pending==null || pending.IsCompleted); } }
+    internal bool IsIdle { get { lock(gate) { return State==SynthesizerState.Ready && (pending==null || pending.IsCompleted); } } }
     internal string OutputDeviceId { get; private set; }
     internal string Error { get; private set; }
-    internal SpeechPlayback(Settings settings,SpeakerDevice device) {
+    internal SpeechPlayback(Settings settings,SpeakerDevice device,bool adjustOtherApplications=false)
+        : this(settings,device,adjustOtherApplications && settings.OtherApplicationVolume<100?new OtherApplicationAudio():null) { }
+    internal SpeechPlayback(Settings settings,SpeakerDevice device,OtherApplicationAudio otherAudio) {
         OutputDeviceId=""; Error="";
+        otherApplicationVolume=settings.OtherApplicationVolume;
+        this.otherAudio=otherAudio;
         try {
             if(device==null) {
                 managed=Speech.Create(settings);
-                managed.SpeakStarted+=delegate { if(!disposed) Raise(SpeakStarted); };
-                managed.SpeakCompleted+=delegate(object sender,SpeakCompletedEventArgs e) { if(e.Error!=null) Error=e.Error.Message; if(!disposed) Raise(SpeakCompleted); };
+                managed.SpeakStarted+=delegate(object sender,SpeakStartedEventArgs e) {
+                    lock(gate) { if(disposed || pending!=e.Prompt) return; }
+                    Raise(SpeakStarted);
+                };
+                managed.SpeakCompleted+=delegate(object sender,SpeakCompletedEventArgs e) {
+                    lock(gate) {
+                        if(disposed) return;
+                        // A cancelled prompt can finish after its replacement starts.
+                        // Only the current prompt owns the volume adjustment.
+                        if(pending==e.Prompt) { pending=null; if(e.Error!=null) Error=e.Error.Message; RestoreOtherAudio(); }
+                    }
+                    Raise(SpeakCompleted);
+                };
                 return;
             }
             string voiceName; using(var available=Speech.Create(settings)) voiceName=available.Voice.Name;
@@ -48,32 +67,50 @@ internal sealed class SpeechPlayback : IDisposable {
         } finally { ComSpeech.Release(tokens); }
     }
     void Raise(EventHandler handler) { if(handler!=null) handler(this,EventArgs.Empty); }
+    void RestoreOtherAudio() { if(otherAudio!=null) otherAudio.Stop(); }
     internal void SpeakAsync(string text) {
-        if(disposed) return; Error="";
-        if(managed!=null) { pending=managed.SpeakAsync(text); return; }
-        // SVSFlagsAsync | SVSFIsNotXML: user/model text is always literal text.
-        try { ComSpeech.Call(native,"Speak",text,17); speaking=true; completion.Start(); Raise(SpeakStarted); }
-        catch(Exception e) { Error=e.Message; speaking=false; completion.Stop(); Log.Write("speaker playback start failed: "+e.GetType().Name); Raise(SpeakCompleted); }
+        lock(gate) {
+            if(disposed) return; Error="";
+            if(otherAudio!=null) otherAudio.Start(otherApplicationVolume);
+            if(managed!=null) {
+                try { pending=managed.SpeakAsync(text); }
+                catch { RestoreOtherAudio(); throw; }
+                return;
+            }
+            // SVSFlagsAsync | SVSFIsNotXML: user/model text is always literal text.
+            try { ComSpeech.Call(native,"Speak",text,17); speaking=true; completion.Start(); Raise(SpeakStarted); }
+            catch(Exception e) { Error=e.Message; speaking=false; completion.Stop(); RestoreOtherAudio(); Log.Write("speaker playback start failed: "+e.GetType().Name); Raise(SpeakCompleted); }
+        }
     }
     void Poll() {
         if(disposed || !speaking) return;
         try { if(!Convert.ToBoolean(ComSpeech.Call(native,"WaitUntilDone",0))) return; }
         catch(Exception e) { Error=e.Message; Log.Write("speaker playback failed: "+e.GetType().Name); }
-        speaking=false; completion.Stop(); Raise(SpeakCompleted);
+        speaking=false; completion.Stop(); RestoreOtherAudio(); Raise(SpeakCompleted);
     }
     internal void SpeakAsyncCancelAll() {
         if(disposed) return;
-        if(managed!=null) { managed.SpeakAsyncCancelAll(); return; }
+        if(managed!=null) {
+            lock(gate) {
+                pending=null;
+                try { managed.SpeakAsyncCancelAll(); }
+                finally { RestoreOtherAudio(); }
+            }
+            return;
+        }
         bool wasSpeaking=speaking; speaking=false; completion.Stop();
         try { ComSpeech.Call(native,"Speak","",3); } // asynchronous purge
         catch(Exception e) { Error=e.Message; Log.Write("speaker cancel failed: "+e.GetType().Name); }
+        finally { RestoreOtherAudio(); }
         if(wasSpeaking) Raise(SpeakCompleted);
     }
     public void Dispose() {
-        if(disposed) return; disposed=true;
-        if(completion!=null) { completion.Stop(); completion.Dispose(); completion=null; }
-        if(managed!=null) { managed.SpeakAsyncCancelAll(); managed.Dispose(); managed=null; }
-        if(native!=null) { try { ComSpeech.Call(native,"Speak","",3); } catch { } ComSpeech.Release(native); native=null; }
+        lock(gate) { if(disposed) return; disposed=true; pending=null; }
+        try {
+            if(completion!=null) { completion.Stop(); completion.Dispose(); completion=null; }
+            if(managed!=null) { try { managed.SpeakAsyncCancelAll(); } finally { managed.Dispose(); managed=null; } }
+            if(native!=null) { try { ComSpeech.Call(native,"Speak","",3); } catch { } ComSpeech.Release(native); native=null; }
+        } finally { if(otherAudio!=null) { otherAudio.Dispose(); otherAudio=null; } }
     }
 }
 }

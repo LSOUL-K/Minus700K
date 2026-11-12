@@ -15,6 +15,8 @@ internal sealed class SettingsForm : Form {
     [DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr hwnd,int attribute,ref int value,int size);
     [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr hwnd,int command);
     readonly string root; readonly SettingsEditSession edit; readonly Func<Settings,string> checkKeys; readonly bool preview;
+    readonly TrayIcons statusIcons=new TrayIcons(SystemInformation.IconSize);
+    readonly TaskbarStatus taskbarStatus=new TaskbarStatus();
     readonly List<Action<Settings>> readers=new List<Action<Settings>>();
     readonly List<Control> detachedLanguageControls=new List<Control>();
     readonly List<SettingsPage> pages=new List<SettingsPage>(); readonly List<Button> navigation=new List<Button>();
@@ -49,7 +51,7 @@ internal sealed class SettingsForm : Form {
         L10n.SetLanguage(current==null?edit.Value.AppLanguage:current.AppLanguage);
         SettingsTheme.BindText(this,"ui.settings.title"); BackColor=SettingsTheme.Background; ForeColor=SettingsTheme.Text; Font=SettingsTheme.Font();
         AutoScaleDimensions=new SizeF(96,96); AutoScaleMode=AutoScaleMode.Dpi; ClientSize=new Size(1080,790); MinimumSize=new Size(920,650); StartPosition=FormStartPosition.CenterScreen;
-        using(var icons=new TrayIcons()) Icon=(Icon)icons.ForState("ready").Clone();
+        SetStatusIcon("ready");
         var sidebar=new Panel { Dock=DockStyle.Left,Width=196,BackColor=SettingsTheme.Sidebar,Padding=new Padding(16,24,16,16) };
         var shell=new Panel { Dock=DockStyle.Fill,BackColor=SettingsTheme.Background }; Controls.Add(shell); Controls.Add(sidebar);
         var brand=new Panel { Dock=DockStyle.Top,Height=100 };
@@ -116,7 +118,15 @@ internal sealed class SettingsForm : Form {
         // Update every editor even when moving directly between shortcut fields.
         foreach(var input in inputs.Values.OfType<ShortcutBox>()) input.SetCaptureActive(value && input.Focused);
     }
-    protected override void OnHandleCreated(EventArgs e) { base.OnHandleCreated(e); try { int dark=1; DwmSetWindowAttribute(Handle,20,ref dark,4); } catch { } }
+    protected override void OnHandleCreated(EventArgs e) {
+        base.OnHandleCreated(e); taskbarStatus.HandleCreated(Handle);
+        try { int dark=1; DwmSetWindowAttribute(Handle,20,ref dark,4); } catch { }
+    }
+    protected override void OnHandleDestroyed(EventArgs e) { taskbarStatus.HandleDestroyed(); base.OnHandleDestroyed(e); }
+    protected override void WndProc(ref Message message) {
+        base.WndProc(ref message);
+        if(TaskbarStatus.ButtonCreatedMessage!=0 && message.Msg==TaskbarStatus.ButtonCreatedMessage && taskbarStatus!=null) taskbarStatus.ButtonCreated(Handle);
+    }
     protected override void OnShown(EventArgs e) {
         base.OnShown(e); if(preview) return;
         var area=Screen.FromControl(this).WorkingArea;
@@ -225,6 +235,7 @@ internal sealed class SettingsForm : Form {
             catch(Exception e) { Log.Write("microphone list: "+e.GetType().Name); }
         }
         voice.Field("ui.audio.microphone",null,Choice("MicrophoneDevice",value.MicrophoneDevice,microphones,(s,v)=>s.MicrophoneDevice=(int)v));
+        voice.Field("ui.audio.exclusiveMicrophone","ui.audio.exclusiveMicrophoneHelp",Toggle("ExclusiveMicrophone",value.ExclusiveMicrophone,(s,v)=>s.ExclusiveMicrophone=v));
         var speakers=new List<SettingsChoice> { new SettingsChoice("","ui.audio.defaultSpeaker") };
         if(!preview) {
             try { foreach(var device in SpeakerDevices.List()) speakers.Add(new SettingsChoice(device.Id,()=>device.Name)); }
@@ -240,6 +251,7 @@ internal sealed class SettingsForm : Form {
         voice.Field("ui.audio.voice",null,Choice("SpeechVoice",value.SpeechVoice,voices,(s,v)=>s.SpeechVoice=(string)v));
         voice.Field("ui.audio.rate","ui.audio.rateHelp",Number("SpeechRate",value.SpeechRate,-10,10,(s,v)=>s.SpeechRate=v));
         voice.Field("ui.audio.volume","ui.audio.volumeHelp",Number("SpeechVolume",value.SpeechVolume,0,100,(s,v)=>s.SpeechVolume=v));
+        voice.Field("ui.audio.otherApplicationVolume","ui.audio.otherApplicationVolumeHelp",Number("OtherApplicationVolume",value.OtherApplicationVolume,0,100,(s,v)=>s.OtherApplicationVolume=v));
         var test=SettingsTheme.Button("ui.audio.previewVoice"); test.Click+=delegate { PreviewVoice(); };
         var mixer=SettingsTheme.Button("ui.audio.mixer",false,215); mixer.Click+=delegate { if(!preview) Process.Start(new ProcessStartInfo("ms-settings:apps-volume") { UseShellExecute=true }); };
         voice.Buttons(test,mixer); voice.Add(SettingsTheme.Label("ui.audio.routingHelp",true,9));
@@ -387,6 +399,11 @@ internal sealed class SettingsForm : Form {
         catch(Exception e) { if(!IsDisposed) Error(L10n.F("ui.audio.cueError",e.Message)); }
     }
     internal void StopSamples() { if(sampleVoice!=null) { sampleVoice.SpeakAsyncCancelAll(); sampleVoice.Dispose(); sampleVoice=null; } if(sampleCue!=null) { sampleCue.Dispose(); sampleCue=null; } }
-    protected override void Dispose(bool disposing) { if(disposing) { StopSamples(); if(Icon!=null) Icon.Dispose(); } base.Dispose(disposing); }
+    internal void SetStatusIcon(string state) { Icon=statusIcons.ForState(state); taskbarStatus.SetState(state); }
+    protected override void Dispose(bool disposing) {
+        if(disposing) StopSamples();
+        base.Dispose(disposing);
+        if(disposing) { taskbarStatus.Dispose(); statusIcons.Dispose(); }
+    }
 }
 }

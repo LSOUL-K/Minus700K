@@ -130,5 +130,9 @@
   "messages.SettingsStorage.040": "config.json changed while settings were being saved.",
   "messages.SettingsStorage.041": "config.json changed while settings were being applied.",
   "messages.RequestStorage.001": "Could not locate the user's app data folder.",
-  "messages.RequestStorage.002": "The app data location must be an absolute path."
+  "messages.RequestStorage.002": "The app data location must be an absolute path.",
+  "messages.ExclusiveMicrophone.failed": "Could not get exclusive access to the microphone.",
+  "messages.ExclusiveMicrophone.timeout": "The microphone did not respond in time. Recording was canceled.",
+  "messages.ExclusiveMicrophone.disconnected": "The selected microphone was disconnected or became unavailable. Recording was canceled.",
+  "messages.ExclusiveMicrophone.format": "No supported audio format was found for exclusive recording with this microphone. Recording was not started."
 }

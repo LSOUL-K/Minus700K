@@ -130,5 +130,9 @@
   "messages.SettingsStorage.040": "config.jsonが保存処理中に変更されました。",
   "messages.SettingsStorage.041": "config.jsonが設定適用中に変更されました。",
   "messages.RequestStorage.001": "ユーザーのアプリデータ保存先を取得できませんでした。",
-  "messages.RequestStorage.002": "アプリデータ保存先には絶対パスが必要です。"
+  "messages.RequestStorage.002": "アプリデータ保存先には絶対パスが必要です。",
+  "messages.ExclusiveMicrophone.failed": "マイクを独占できませんでした。",
+  "messages.ExclusiveMicrophone.timeout": "マイクの応答を待っている間に時間切れになりました。録音を中止しました。",
+  "messages.ExclusiveMicrophone.disconnected": "選択したマイクが切断されたか、利用できなくなりました。録音を中止しました。",
+  "messages.ExclusiveMicrophone.format": "このマイクで使える排他録音の音声形式が見つかりません。録音を開始しませんでした。"
 }

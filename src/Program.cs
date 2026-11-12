@@ -70,8 +70,8 @@ internal sealed class Recording {
 }
 internal sealed class VoiceContext : ApplicationContext {
     readonly string root; Settings settings; AssistantService service;
-    readonly DesktopCapture capture=new DesktopCapture(); WaveRecorder recorder;
-    readonly Control dispatcher=new Control(); readonly NotifyIcon tray; SpeechPlayback speech;
+    readonly DesktopCapture capture=new DesktopCapture(); RecordingMicrophone recorder;
+    readonly Control dispatcher=new Control(); readonly TrayNotificationIcon tray; SpeechPlayback speech;
     readonly TrayIcons icons=new TrayIcons();
     CuePlayer cues;
     readonly Thread keyboard; Hotkey ptt,cancel,replay; readonly object activeGate=new object(),operationGate=new object();
@@ -85,13 +85,13 @@ internal sealed class VoiceContext : ApplicationContext {
     volatile bool quitting,paused,settingsOpen,keysRegistered,shortcutEditing,applyingSettings,connectionTransition,updatePending; int busy,cancelRequested,accountGeneration,inputEpoch; string lastAnswer="";
     SettingsForm settingsForm,connectionOwner;
     internal string ReplayAnswer { get { return lastAnswer; } }
-    readonly object statusGate=new object(); int statusVersion;
+    readonly object statusGate=new object(); int statusVersion; string displayedState="ready";
     internal VoiceContext(string root,Settings settings,string replayAnswer="",bool initialPaused=false) {
         try {
         lastAnswer=replayAnswer??""; paused=initialPaused;
         this.root=root; this.settings=settings; L10n.SetLanguage(settings.AppLanguage); ptt=Hotkey.Parse(settings.PushToTalkKey); cancel=Hotkey.Parse(settings.CancelKey); replay=Hotkey.Parse(settings.ReplayKey);
         var output=SpeakerDevices.Resolve(settings.SpeakerDevice);
-        service=new AssistantService(root,settings); speech=new SpeechPlayback(settings,output); recorder=new WaveRecorder(settings.MicrophoneDevice);
+        service=new AssistantService(root,settings); speech=new SpeechPlayback(settings,output,true); recorder=new RecordingMicrophone(settings.MicrophoneDevice,settings.ExclusiveMicrophone);
         if(settings.PlayCues || settings.PlayProcessingCues) cues=new CuePlayer(settings.CueVolume,output==null?"":output.Id);
         WireSpeech(speech);
         dispatcher.CreateControl(); IntPtr ignored=dispatcher.Handle;
@@ -114,7 +114,7 @@ internal sealed class VoiceContext : ApplicationContext {
         menu.Items.Add(editSearchTriggers);
         menu.Items.Add(L10n.T("messages.Program.016"),null,delegate { Process.Start(new ProcessStartInfo("notepad.exe",HiddenProcess.Quote(Path.Combine(root,"config.json"))) { UseShellExecute=true }); });
         menu.Items.Add(L10n.T("messages.Program.017"),null,delegate { ExitThread(); });
-        tray=new NotifyIcon { Icon=icons.ForState("ready"),Text="Minus700K",ContextMenuStrip=menu,Visible=true };
+        tray=new TrayNotificationIcon { Icon=icons.ForState("ready"),Text="Minus700K (Tray)",ContextMenuStrip=menu,Visible=true };
         tray.DoubleClick+=delegate { OpenSettings(0); };
         SetState(paused?"paused":"ready"); Log.Write("started pid="+Process.GetCurrentProcess().Id+" ptt="+settings.PushToTalkKey+" replay="+settings.ReplayKey+" memory_turns="+settings.RememberLastTurns+" microphone="+settings.MicrophoneDevice);
         keyboard=new Thread(KeyLoop) { IsBackground=true,Name="Minus700K keys" }; keyboard.Start();
@@ -153,6 +153,7 @@ internal sealed class VoiceContext : ApplicationContext {
         try {
             SettingsForm form=new SettingsForm(root,settings,null,tab);
             settingsForm=form; settingsOpen=true;
+            form.SetStatusIcon(displayedState);
             form.BeginApply=BeginSettingsApply; form.EndApply=EndSettingsApply; form.PrepareApply=PrepareSettingsUpdate;
             form.ShortcutCaptureChanged+=delegate { SetShortcutEditing(form.ShortcutCaptureActive); };
             form.BeforeConnectionChange=PrepareConnectionChange;
@@ -208,17 +209,18 @@ internal sealed class VoiceContext : ApplicationContext {
         // replacements before touching the live resources or saving any files.
         var nextPtt=Hotkey.Parse(value.PushToTalkKey); var nextCancel=Hotkey.Parse(value.CancelKey); var nextReplay=Hotkey.Parse(value.ReplayKey);
         var nextService=new AssistantService(root,value);
-        SpeechPlayback nextSpeech=null; CuePlayer nextCues=null; WaveRecorder nextRecorder=null;
+        SpeechPlayback nextSpeech=null; CuePlayer nextCues=null; RecordingMicrophone nextRecorder=null;
         Action rollback=delegate { ReleaseKeys(); SafeDispose(nextSpeech); SafeDispose(nextCues); SafeDispose(nextRecorder); };
         try {
             if(settingsForm!=null) settingsForm.StopSamples();
             var output=SpeakerDevices.Resolve(value.SpeakerDevice);
-            nextSpeech=new SpeechPlayback(value,output); WireSpeech(nextSpeech);
+            nextSpeech=new SpeechPlayback(value,output,true); WireSpeech(nextSpeech);
             if(value.PlayCues || value.PlayProcessingCues) {
                 nextCues=new CuePlayer(value.CueVolume,output==null?"":output.Id);
                 if(!nextCues.WaitReady(5000)) throw new InvalidOperationException(L10n.T("messages.Program.024"));
             }
-            if(value.MicrophoneDevice!=settings.MicrophoneDevice) nextRecorder=new WaveRecorder(value.MicrophoneDevice);
+            if(value.MicrophoneDevice!=settings.MicrophoneDevice || value.ExclusiveMicrophone!=settings.ExclusiveMicrophone)
+                nextRecorder=new RecordingMicrophone(value.MicrophoneDevice,value.ExclusiveMicrophone);
             return new SettingsRuntimeUpdate(delegate {
                 // No fallible device creation or file I/O beyond this point.
                 var oldSpeech=speech; var oldCues=cues; var oldRecorder=recorder;
@@ -293,8 +295,10 @@ internal sealed class VoiceContext : ApplicationContext {
         string text=state=="ready"?L10n.T("messages.Program.026"):state=="recording"?L10n.T("messages.Program.027"):state=="recognizing"?L10n.T("messages.Program.028"):state=="asking"?L10n.T("messages.Program.029"):state=="speaking"?L10n.T("messages.Program.030"):state=="paused"?L10n.T("messages.Program.009"):state=="settings"?L10n.T("messages.Program.031"):state;
         Post(delegate {
             if(version!=Volatile.Read(ref statusVersion)) return;
-            tray.Text=("Minus700K: "+text).Substring(0,Math.Min(63,("Minus700K: "+text).Length));
+            tray.Text=("Minus700K (Tray): "+text).Substring(0,Math.Min(127,("Minus700K (Tray): "+text).Length));
             tray.Icon=icons.ForState(state);
+            displayedState=state;
+            if(settingsForm!=null && !settingsForm.IsDisposed) settingsForm.SetStatusIcon(state);
         });
     }
     void KeyLoop() {
@@ -317,6 +321,11 @@ internal sealed class VoiceContext : ApplicationContext {
                     if(ReserveRecording()) BeginRecording(); else if(!shortcutEditing && !connectionTransition && !applyingSettings) Cue(300);
                 }
                 if(!down&&previousPtt&&recording!=null) FinishRecording();
+                Exception captureError=recording==null?null:recorder.CaptureError;
+                if(captureError!=null) {
+                    Log.Write("exclusive microphone capture stopped: "+captureError.GetType().Name);
+                    Cancel(); Post(delegate { Say(L10n.T("messages.ExclusiveMicrophone.disconnected")); });
+                }
                 if(inputAvailable && !connectionTransition && !updatePending && replayDown&&!previousReplay&&!down&&!cancelDown&&!cancelNow && Volatile.Read(ref busy)==0) { int generation=Volatile.Read(ref accountGeneration); Post(delegate { if(generation==Volatile.Read(ref accountGeneration) && !shortcutEditing) ReplayLastAnswer(); }); }
                 if(recording!=null && recording.Duration.Elapsed.TotalSeconds>settings.MaximumRecordingSeconds) { Cancel(); Post(delegate { Say(L10n.T("messages.Program.032")); }); }
                 previousPtt=down; previousCancel=cancelDown; previousReplay=replayDown; Thread.Sleep(8);
@@ -334,21 +343,27 @@ internal sealed class VoiceContext : ApplicationContext {
             } catch(Exception e) { targetError=e; }
             Post(delegate { StopSpeechAndSamples(); if(cues!=null) cues.SetSpeaking(false); });
             // Start the microphone first; expensive GPU/file work never blocks key release monitoring.
-            recorder.Start();
+            recorder.Start(settings.ExclusiveMicrophone?(Func<bool>)(()=>!ptt.IsDown(keyState) || cancel.IsDown(keyState) || quitting || paused || Volatile.Read(ref cancelRequested)!=0):null);
+            if(settings.ExclusiveMicrophone && (!ptt.IsDown(keyState) || cancel.IsDown(keyState) || quitting || paused || Volatile.Read(ref cancelRequested)!=0)) { Cancel(); return; }
+            r.Duration.Restart();
             SetState("recording");
+            // In exclusive mode the cue confirms microphone acquisition, even
+            // when screen capture is slow. Never announce readiness before Start.
+            if(settings.ExclusiveMicrophone) Cue(880);
             r.Image=Task.Run(delegate {
                 OptionalScreenshot image=OptionalScreenshot.Take(delegate { if(targetError!=null) throw targetError; return capture.Capture(r.Target,settings.CaptureMaximumWidth); },r.Cancellation.Token,targetError==null?"capture":"target",settings.CaptureEnabled);
                 bool failed=image.Failed;
-                Post(delegate { if(!r.Cancellation.IsCancellationRequested && Volatile.Read(ref r.Ended)==0) { if(failed) CaptureFailureCue(r); else Cue(880); } });
+                Post(delegate { if(!r.Cancellation.IsCancellationRequested && Volatile.Read(ref r.Ended)==0) { if(failed) CaptureFailureCue(r); else if(!settings.ExclusiveMicrophone) Cue(880); } });
                 Log.Write("capture result="+image.status+" elapsed_ms="+image.elapsedMilliseconds);
                 return image;
             });
-        } catch(Exception e) { Log.Write("record start "+e); try { recorder.Stop(); } catch {} if(recording!=null) Discard(recording); recording=null; Interlocked.Exchange(ref busy,0); SetState("ready"); Post(delegate { Say(L10n.T("messages.Program.034")); }); }
+        } catch(OperationCanceledException) { try { recorder.Stop(); } catch {} if(recording!=null) Discard(recording); recording=null; Interlocked.Exchange(ref busy,0); Interlocked.Exchange(ref cancelRequested,0); SetState(paused?"paused":"ready"); Cue(400); }
+        catch(Exception e) { Log.Write("record start "+e); try { recorder.Stop(); } catch {} if(recording!=null) Discard(recording); recording=null; Interlocked.Exchange(ref busy,0); SetState("ready"); Post(delegate { Say(L10n.T(settings.ExclusiveMicrophone?"messages.ExclusiveMicrophone.failed":"messages.Program.034")); }); }
     }
     void FinishRecording() {
         Recording r=recording; recording=null; Interlocked.Exchange(ref r.Ended,1);
         byte[] data;
-        try { data=recorder.Stop(); r.Duration.Stop(); } catch(Exception e) { Log.Write("record stop "+e); Discard(r); Interlocked.Exchange(ref busy,0); SetState("ready"); Post(delegate { Say(L10n.T("messages.Program.035")); }); return; }
+        try { r.Duration.Stop(); data=recorder.Stop(); } catch(Exception e) { Log.Write("record stop "+e); Discard(r); Interlocked.Exchange(ref busy,0); SetState("ready"); Post(delegate { Say(L10n.T("messages.Program.035")); }); return; }
         if(r.Duration.ElapsedMilliseconds<settings.MinimumRecordingMilliseconds || !WaveRecorder.Audible(data)) { Discard(r); Interlocked.Exchange(ref busy,0); SetState("ready"); Cue(300); return; }
         lock(activeGate) active=r.Cancellation;
         Cue(660); SetState("recognizing");

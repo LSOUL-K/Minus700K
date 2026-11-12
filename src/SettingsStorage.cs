@@ -50,6 +50,7 @@ internal static class SettingsStorage {
         Range(value.WhisperTimeoutSeconds,10,600,L10n.T("messages.SettingsStorage.012"));
         Range(value.SpeechRate,-10,10,L10n.T("messages.SettingsStorage.013"));
         Range(value.SpeechVolume,0,100,L10n.T("messages.SettingsStorage.014"));
+        Range(value.OtherApplicationVolume,0,100,L10n.T("ui.audio.otherApplicationVolume"));
         Range(value.CueVolume,0,100,L10n.T("messages.SettingsStorage.015"));
         Range(value.ProcessingCueIntervalSeconds,1,60,L10n.T("messages.SettingsStorage.016"));
         Range(value.RememberLastTurns,0,10,L10n.T("messages.SettingsStorage.017"));

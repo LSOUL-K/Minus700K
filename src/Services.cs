@@ -15,6 +15,7 @@ namespace Minus700K {
 public sealed class Settings {
     public string PushToTalkKey="Alt+Q",CancelKey="Alt+E",ReplayKey="Alt+R";
     public int MicrophoneDevice=-1,WhisperThreads=2;
+    public bool ExclusiveMicrophone=false;
     public string SpeakerDevice=""; // Empty follows the existing Windows per-app output preference.
     public string WhisperModel="vendor/ggml-small-q5_1.bin",CodexPath="",CodexModel="",WebSearch="on-demand",GameName="",Language="ja";
     public string AppLanguage="ja"; // UI and assistant language; Language remains the speech-recognition override.
@@ -24,6 +25,7 @@ public sealed class Settings {
     public string ApplicationInstructionsText=ApplicationInstructions.DefaultText;
     public bool CustomInstructionsEnabled=true,WebSearchTriggersEnabled=true;
     public int SpeechRate=1,SpeechVolume=85,MaximumRecordingSeconds=60,MinimumRecordingMilliseconds=400,CaptureMaximumWidth=1920,RequestTimeoutSeconds=120,WhisperTimeoutSeconds=90,RememberLastTurns=3;
+    public int OtherApplicationVolume=100; // Percentage of each other application's original volume during answers.
     public bool KeepRequestFiles=false,PlayCues=true;
     public bool PlayProcessingCues=true;
     public int ProcessingCueIntervalSeconds=3;
@@ -43,6 +45,7 @@ public sealed class Settings {
         if(WhisperThreads<1 || WhisperThreads>8 || MaximumRecordingSeconds<1 || MaximumRecordingSeconds>180 || MinimumRecordingMilliseconds<100 || CaptureMaximumWidth<320 || CaptureMaximumWidth>7680 || RequestTimeoutSeconds<10 || RequestTimeoutSeconds>600 || WhisperTimeoutSeconds<10 || SpeechRate < -10 || SpeechRate>10 || SpeechVolume<0 || SpeechVolume>100 || RememberLastTurns<0 || RememberLastTurns>10) throw new Exception(locale.Text("errors.settings.numberRange"));
         if(WebSearch!="on-demand" && WebSearch!="disabled" && WebSearch!="cached" && WebSearch!="live") throw new Exception(locale.Text("errors.settings.webSearch"));
         if(CueVolume<0 || CueVolume>100) throw new Exception(locale.Text("errors.settings.cueVolume"));
+        if(OtherApplicationVolume<0 || OtherApplicationVolume>100) throw new Exception(locale.Text("errors.settings.otherApplicationVolume"));
         if(ProcessingCueIntervalSeconds<1 || ProcessingCueIntervalSeconds>60) throw new Exception(locale.Text("errors.settings.processingInterval"));
     }
     internal static Settings Load(string root) {
