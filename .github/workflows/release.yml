@@ -6,6 +6,9 @@ on:
     branches: [main]
     paths:
       - src/AssemblyInfo.cs
+      - build.ps1
+      - build-installer.ps1
+      - installer/**
       - .github/workflows/release.yml
 
 permissions:

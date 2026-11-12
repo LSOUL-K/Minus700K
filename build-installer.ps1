@@ -40,22 +40,33 @@ function Test-InnoPublisher([string]$Path) {
         $signature.SignerCertificate.GetNameInfo([Security.Cryptography.X509Certificates.X509NameType]::SimpleName, $false) -eq 'Pyrsys B.V.'
 }
 
+function Test-InnoCompilerVersion([string]$Path) {
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $false }
+    # The installer uses NativeInt and requires the Inno Setup 7 script engine.
+    try {
+        $versionText = (& $Path '--version' 2>&1 | Out-String).Trim()
+        $version = [regex]::Match($versionText, '^(\d+)\.\d+\.\d+$')
+        return $LASTEXITCODE -eq 0 -and $version.Success -and [int]$version.Groups[1].Value -ge 7
+    } catch { return $false }
+}
+
 function Find-InnoCompiler([string]$Configured) {
     if (-not [string]::IsNullOrWhiteSpace($Configured)) {
         $candidate = if ([IO.Path]::IsPathRooted($Configured)) { $Configured } else { Join-Path $root $Configured }
         if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) { throw "Inno Setup compiler was not found: $candidate" }
+        if (-not (Test-InnoCompilerVersion $candidate)) { throw "Inno Setup 7 or newer is required: $candidate" }
         return [IO.Path]::GetFullPath($candidate)
     }
     $command = Get-Command ISCC.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($command) { return $command.Source }
+    if ($command -and (Test-InnoCompilerVersion $command.Source)) { return $command.Source }
     foreach ($baseDirectory in @($env:ProgramFiles,${env:ProgramFiles(x86)},(Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'Programs'))) {
         if ([string]::IsNullOrWhiteSpace($baseDirectory)) { continue }
         $candidate = Join-Path $baseDirectory 'Inno Setup 7\ISCC.exe'
-        if (Test-Path -LiteralPath $candidate -PathType Leaf) { return $candidate }
+        if (Test-InnoCompilerVersion $candidate) { return $candidate }
     }
     $cache = Join-Path $vendor 'inno-setup-7.1.1'
     $candidate = Join-Path $cache 'ISCC.exe'
-    if (Test-Path -LiteralPath $candidate -PathType Leaf) { return $candidate }
+    if (Test-InnoCompilerVersion $candidate) { return $candidate }
 
     # This immutable release is linked by https://jrsoftware.org/isdl.php.
     # Portable mode keeps the compiler and its configuration in the build cache.
@@ -74,7 +85,7 @@ function Find-InnoCompiler([string]$Configured) {
     $arguments = '/PORTABLE=1 /CURRENTUSER /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /NOICONS /DIR="' + $cache + '"'
     $process = Start-Process -FilePath $compilerSetup -ArgumentList $arguments -WindowStyle Hidden -Wait -PassThru
     if ($process.ExitCode -ne 0) { throw "Inno Setup compiler preparation failed (exit $($process.ExitCode))." }
-    if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) { throw "Inno Setup did not create its compiler: $candidate" }
+    if (-not (Test-InnoCompilerVersion $candidate)) { throw "Inno Setup did not create a compatible compiler: $candidate" }
     return $candidate
 }
 
