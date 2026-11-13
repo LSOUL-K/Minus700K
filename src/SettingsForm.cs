@@ -398,7 +398,12 @@ internal sealed class SettingsForm : Form {
         try { StopSamples(); var draft=Draft; var output=SpeakerDevices.Resolve(draft.SpeakerDevice); var cue=new CuePlayer(draft.CueVolume,output==null?"":output.Id); sampleCue=cue; bool ready=await System.Threading.Tasks.Task.Run(()=>cue.WaitReady(5000)); if(!IsDisposed && sampleCue==cue && ready) cue.Play(660); }
         catch(Exception e) { if(!IsDisposed) Error(L10n.F("ui.audio.cueError",e.Message)); }
     }
-    internal void StopSamples() { if(sampleVoice!=null) { sampleVoice.SpeakAsyncCancelAll(); sampleVoice.Dispose(); sampleVoice=null; } if(sampleCue!=null) { sampleCue.Dispose(); sampleCue=null; } }
+    internal bool StopSamples() {
+        bool stoppedSpeech=sampleVoice!=null && !sampleVoice.IsIdle;
+        if(sampleVoice!=null) { sampleVoice.SpeakAsyncCancelAll(); sampleVoice.Dispose(); sampleVoice=null; }
+        if(sampleCue!=null) { sampleCue.Dispose(); sampleCue=null; }
+        return stoppedSpeech;
+    }
     internal void SetStatusIcon(string state) { Icon=statusIcons.ForState(state); taskbarStatus.SetState(state); }
     protected override void Dispose(bool disposing) {
         if(disposing) StopSamples();

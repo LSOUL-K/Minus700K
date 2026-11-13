@@ -143,7 +143,7 @@ internal sealed class VoiceContext : ApplicationContext {
     }
     void ReplayLastAnswer() {
         if(Volatile.Read(ref busy)!=0 || connectionTransition || applyingSettings || updatePending) return;
-        if(lastAnswer.Length==0) { Cue(300); return; }
+        if(lastAnswer.Length==0) return;
         Say(lastAnswer);
         ThreadPool.QueueUserWorkItem(delegate { Log.Write("last answer replayed"); });
     }
@@ -264,9 +264,11 @@ internal sealed class VoiceContext : ApplicationContext {
             return Interlocked.CompareExchange(ref busy,1,0)==0;
         }
     }
-    void StopSpeechAndSamples() {
+    bool StopSpeechAndSamples() {
+        bool stoppedSpeech=!speech.IsIdle;
         speech.SpeakAsyncCancelAll();
-        if(settingsForm!=null && !settingsForm.IsDisposed) settingsForm.StopSamples();
+        if(settingsForm!=null && !settingsForm.IsDisposed) stoppedSpeech|=settingsForm.StopSamples();
+        return stoppedSpeech;
     }
     void ReleaseKeys() { keysRegistered=false; }
     void BeginUpdateWait() {
@@ -440,10 +442,14 @@ internal sealed class VoiceContext : ApplicationContext {
     }
     void Cancel() {
         ProcessingCues(false);
-        Post(delegate { StopSpeechAndSamples(); });
-        lock(activeGate) if(active!=null) active.Cancel();
+        bool cancelledWork=recording!=null;
+        lock(activeGate) if(active!=null) { cancelledWork|=!active.IsCancellationRequested; active.Cancel(); }
+        Post(delegate {
+            // Inspect speech on its UI thread, including prompts queued to start.
+            bool stoppedSpeech=StopSpeechAndSamples();
+            if(cancelledWork || stoppedSpeech) Cue(400);
+        });
         if(recording!=null) { Recording r=recording; recording=null; try { recorder.Stop(); } catch(Exception e) { Log.Write("cancel stop "+e.Message); } Discard(r); Interlocked.Exchange(ref busy,0); SetState(paused?"paused":"ready"); }
-        Cue(400);
     }
     static void Discard(Recording r) { Interlocked.Exchange(ref r.Ended,1); r.Cancellation.Cancel(); if(r.Image!=null) r.Image.ContinueWith(t=>{ if(t.Status==TaskStatus.RanToCompletion) t.Result.Dispose(); else if(t.IsFaulted) Log.Write("discarded capture "+t.Exception.GetBaseException().Message); r.Cancellation.Dispose(); }); else r.Cancellation.Dispose(); }
     protected override void ExitThreadCore() {
