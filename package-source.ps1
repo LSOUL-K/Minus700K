@@ -22,6 +22,7 @@ $names += @('tests/SharedShortcutsHarness.cs','tests/verify-shared-shortcuts.ps1
 $names += @('tests/ExclusiveMicrophoneLiveHarness.cs','tests/CoreAudioInteropHarness.cs','tests/verify-exclusive-installed.ps1')
 $names += @('tests/ShellIconsHarness.cs')
 $names += @('tests/ShortcutCaptureHarness.cs','tests/verify-shortcut-capture.ps1')
+$names += @('tests/CaptureRecoveryHarness.cs','tests/verify-capture-recovery.ps1')
 $names += @('tests/SettingsAltKeysHarness.cs','tests/verify-settings-alt-keys.ps1')
 $names += @('installer/prepare-update.ps1','tests/verify-installer-update.ps1','tests/InstallerUpdateFixture.cs','tests/verify-update-process-race.ps1')
 $names += @('README.en.md','CONTRIBUTING.md')

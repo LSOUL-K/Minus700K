@@ -353,7 +353,7 @@ internal sealed class VoiceContext : ApplicationContext {
             // when screen capture is slow. Never announce readiness before Start.
             if(settings.ExclusiveMicrophone) Cue(880);
             r.Image=Task.Run(delegate {
-                OptionalScreenshot image=OptionalScreenshot.Take(delegate { if(targetError!=null) throw targetError; return capture.Capture(r.Target,settings.CaptureMaximumWidth); },r.Cancellation.Token,targetError==null?"capture":"target",settings.CaptureEnabled);
+                OptionalScreenshot image=OptionalScreenshot.Take(delegate { if(targetError!=null) throw targetError; return capture.Capture(r.Target,settings.CaptureMaximumWidth,r.Cancellation.Token); },r.Cancellation.Token,targetError==null?"capture":"target",settings.CaptureEnabled);
                 bool failed=image.Failed;
                 Post(delegate { if(!r.Cancellation.IsCancellationRequested && Volatile.Read(ref r.Ended)==0) { if(failed) CaptureFailureCue(r); else if(!settings.ExclusiveMicrophone) Cue(880); } });
                 Log.Write("capture result="+image.status+" elapsed_ms="+image.elapsedMilliseconds);
